@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-04T13:25:37-03:00",
+  "title": "Design System: Fatia",
+  "extensions": {
+    "colorMeta": {
+      "lime-field": {
+        "role": "primary",
+        "displayName": "Campo Lima",
+        "canonical": "#9bd36a",
+        "tonalRamp": ["#17210d", "#2c4318", "#466d29", "#65973f", "#83bc58", "#a7dc7b", "#cff0ae", "#f0fbe5"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta Carvão",
+        "canonical": "#20211f",
+        "tonalRamp": ["#171816", "#292b27", "#41443d", "#5e6258", "#82877a", "#aaaea3", "#d3d5ce", "#f1f2ee"]
+      },
+      "coral-action": {
+        "role": "secondary",
+        "displayName": "Coral de Ação",
+        "canonical": "#ff7058",
+        "tonalRamp": ["#33100b", "#632017", "#963226", "#c84b3b", "#ec6852", "#ff8f7c", "#ffb8aa", "#ffe7e1"]
+      },
+      "blue-proof": {
+        "role": "tertiary",
+        "displayName": "Azul de Prova",
+        "canonical": "#579af0",
+        "tonalRamp": ["#0d1c32", "#173763", "#245493", "#3472c0", "#5595e5", "#80b4f5", "#b4d3fb", "#e8f3ff"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "canonical": "#f3f0e6",
+        "tonalRamp": ["#25231d", "#454139", "#666157", "#89847a", "#ada99f", "#cfcbc1", "#e6e2d8", "#faf8f2"]
+      },
+      "success": {
+        "role": "status",
+        "displayName": "Verde de Confirmação",
+        "canonical": "#2d5d1d",
+        "tonalRamp": ["#0d1d08", "#19370f", "#285218", "#397023", "#519032", "#71b44b", "#a6d88a", "#e5f4d9"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Argumento principal e uma única âncora monumental por viewport." },
+      "headline": { "displayName": "Headline", "purpose": "Cabeçalhos de tarefa e prova." },
+      "title": { "displayName": "Title", "purpose": "Títulos de seções e superfícies." },
+      "brand": { "displayName": "Brand", "purpose": "Nome Fatia na navegação." },
+      "hero-body": { "displayName": "Hero Body", "purpose": "Explicação principal da landing." },
+      "feature-body": { "displayName": "Feature Body", "purpose": "Texto de prova em escala editorial." },
+      "body": { "displayName": "Body", "purpose": "Orientação operacional com leitura aberta." },
+      "label": { "displayName": "Label", "purpose": "Campos e metadados sem caixa-alta decorativa." },
+      "status": { "displayName": "Status", "purpose": "Chips compactos de estado." }
+    },
+    "shadows": [
+      { "name": "nav-ambient", "value": "0 14px 36px rgba(32, 33, 31, 0.13)", "purpose": "Separar a navegação flutuante do campo." },
+      { "name": "figure-ambient", "value": "0 22px 28px rgba(32, 33, 31, 0.14)", "purpose": "Separar o conjunto de fatias sem sombrear cada plano." }
+    ],
+    "motion": [
+      { "name": "slice-compose", "value": "700ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Separação e recomposição das fatias da landing." },
+      { "name": "control-lift", "value": "180ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Elevação curta de botões no hover." }
+    ],
+    "breakpoints": [
+      { "name": "mobile-nav", "value": "639px" },
+      { "name": "editorial-grid", "value": "800px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal escura, compacta e inequívoca.",
+      "html": "<button class=\"ds-btn-primary\">Criar divisão →</button>",
+      "css": ".ds-btn-primary{min-height:46px;border:1px solid var(--ink);border-radius:999px;background:var(--ink);color:var(--white);padding:12px 20px;font:700 16px/1.2 var(--font-fatia),sans-serif;transition:transform 180ms cubic-bezier(.16,1,.3,1)}.ds-btn-primary:hover{transform:translateY(-2px)}.ds-btn-primary:focus-visible{outline:3px solid var(--blue);outline-offset:4px}"
+    },
+    {
+      "name": "Coral Button",
+      "kind": "button",
+      "refersTo": "button-coral",
+      "description": "CTA de conversão usado sobre o campo lima.",
+      "html": "<button class=\"ds-btn-coral\">Criar link de pagamento →</button>",
+      "css": ".ds-btn-coral{min-height:46px;border:1px solid var(--coral);border-radius:999px;background:var(--coral);color:var(--ink);padding:12px 20px;font:700 16px/1.2 var(--font-fatia),sans-serif;transition:transform 180ms cubic-bezier(.16,1,.3,1)}.ds-btn-coral:hover{transform:translateY(-2px)}.ds-btn-coral:focus-visible{outline:3px solid var(--blue);outline-offset:4px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ação auxiliar transparente com contorno carvão.",
+      "html": "<button class=\"ds-btn-secondary\">Dividir igualmente</button>",
+      "css": ".ds-btn-secondary{min-height:46px;border:1px solid var(--ink);border-radius:999px;background:transparent;color:var(--ink);padding:12px 20px;font:700 14px/1.2 var(--font-fatia),sans-serif;transition:transform 180ms cubic-bezier(.16,1,.3,1)}.ds-btn-secondary:hover{transform:translateY(-2px)}.ds-btn-secondary:focus-visible{outline:3px solid var(--blue);outline-offset:4px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Campo quente, legível e com foco azul explícito.",
+      "html": "<input class=\"ds-field\" placeholder=\"Ex.: Jantar de sábado\">",
+      "css": ".ds-field{width:100%;border:1px solid rgba(32,33,31,.34);border-radius:12px;background:var(--white);color:var(--ink);padding:14px 16px;font:500 16px/1.3 var(--font-fatia),sans-serif}.ds-field:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(87,154,240,.2);outline:none}"
+    },
+    {
+      "name": "Floating Navigation",
+      "kind": "nav",
+      "refersTo": "floating-nav",
+      "description": "Barra branca suspensa com marca e ação final.",
+      "html": "<nav class=\"ds-nav\"><strong>fatia</strong><button>Criar divisão →</button></nav>",
+      "css": ".ds-nav{display:flex;min-height:68px;align-items:center;justify-content:space-between;gap:16px;border-radius:14px;background:var(--white);padding:10px 12px 10px 16px;box-shadow:0 14px 36px rgba(32,33,31,.13);color:var(--ink);font-family:var(--font-fatia),sans-serif}.ds-nav button{border:0;border-radius:999px;background:var(--ink);color:var(--white);padding:12px 20px;font-weight:700}.ds-nav button:focus-visible{outline:3px solid var(--blue);outline-offset:4px}"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "status-chip",
+      "description": "Estado confirmado em lima tonal.",
+      "html": "<span class=\"ds-status\">Confirmado na Devnet</span>",
+      "css": ".ds-status{display:inline-flex;border-radius:999px;background:var(--lime-soft);color:var(--success);padding:6px 12px;font:750 12px/1.2 var(--font-fatia),sans-serif}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Editorial em Fatias",
+    "overview": "Fatia usa planos geométricos grandes, cor chapada e tipografia direta para transformar uma divisão financeira abstrata em algo visível. As superfícies de apresentação podem ser exuberantes; os fluxos de criação, pagamento e recibo são mais calmos e verificáveis.",
+    "keyCharacteristics": [
+      "Planos de cor sólidos e sem contorno.",
+      "Títulos grandes, compactos e de leitura imediata.",
+      "Ações em pílula; superfícies de trabalho com cantos contidos.",
+      "Contraste entre apresentação enérgica e operação serena.",
+      "Dados financeiros sempre textuais e tabulares."
+    ],
+    "rules": [
+      { "name": "The Saturated Field Rule", "body": "Uma região grande escolhe uma cor de campo; não mistura gradientes ou halos.", "section": "colors" },
+      { "name": "The Ink Anchor Rule", "body": "Toda composição colorida mantém carvão suficiente para orientar leitura e ação.", "section": "colors" },
+      { "name": "The One Monument Rule", "body": "Cada viewport tem um único título monumental; o restante baixa de volume.", "section": "typography" },
+      { "name": "The Flat-by-Default Rule", "body": "Painéis internos usam borda ou mudança tonal; não combinam borda e sombra larga.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do usar uma cor de campo por região e deixar a composição respirar.",
+      "Do manter o círculo dividido reconhecível em qualquer breakpoint.",
+      "Do reservar monoespaçada a endereços, assinaturas e números tabulares.",
+      "Do mostrar percentuais, valores e estados também em texto."
+    ],
+    "donts": [
+      "Don't copiar ilustrações, textos ou layouts da MindMarket.",
+      "Don't voltar ao painel escuro com neon, glassmorphism ou gradiente.",
+      "Don't criar grades de cartões iguais como estrutura principal.",
+      "Don't usar emoji ou glifo Unicode como sistema de ícones.",
+      "Don't usar o gráfico como única fonte de informação."
+    ]
+  }
+}
