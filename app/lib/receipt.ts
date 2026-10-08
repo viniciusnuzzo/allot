@@ -1,6 +1,10 @@
 import { signature as parseSignature } from "@solana/kit";
+import { address } from "@solana/kit";
+import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from "@solana-program/token";
 
-import { USDC_MINT } from "./config";
+import { USDC_DECIMALS, USDC_MINT } from "./config";
+import { parseUsdc, splitAmount } from "./money";
+import type { PaymentLink } from "./payment-link";
 import type { AppClient } from "./solana-client";
 
 type TokenBalanceLike = {
@@ -23,6 +27,7 @@ export type ParsedReceiptTransaction = {
     preTokenBalances?: readonly TokenBalanceLike[];
     postTokenBalances?: readonly TokenBalanceLike[];
     logMessages?: readonly string[] | null;
+    innerInstructions?: readonly { instructions: readonly ParsedInstructionLike[] }[] | null;
   } | null;
   transaction: {
     message: { instructions: readonly ParsedInstructionLike[] };
@@ -36,13 +41,16 @@ export type ReceiptTransfer = {
 
 export type Receipt = {
   signature: string;
-  status: "confirmed" | "failed";
+  status: "confirmed" | "failed" | "unknown";
   payer: string | null;
   title: string | null;
+  agreementShareId: string | null;
   blockTime: number | null;
   total: bigint;
   transfers: readonly ReceiptTransfer[];
 };
+
+export type AgreementTransferCheck = "match" | "mismatch" | "unverifiable";
 
 export class ReceiptNotFoundError extends Error {
   constructor() {
@@ -65,7 +73,7 @@ function parsedMemoValue(parsed: unknown): string | null {
   return null;
 }
 
-function getTitle(transaction: ParsedReceiptTransaction): string | null {
+function getMemoDetails(transaction: ParsedReceiptTransaction): { title: string | null; agreementShareId: string | null } {
   const prefixes = ["allot:v1:", "fatia:v1:"] as const;
   for (const instruction of transaction.transaction.message.instructions) {
     const isMemo =
@@ -76,34 +84,34 @@ function getTitle(transaction: ParsedReceiptTransaction): string | null {
 
     const memo = parsedMemoValue(instruction.parsed);
     const prefix = prefixes.find((value) => memo?.startsWith(value));
+    if (memo?.startsWith("allot:v2:")) {
+      const match = /^allot:v2:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):(.+)$/i.exec(memo);
+      if (match) return { title: match[2].trim() || null, agreementShareId: match[1].toLowerCase() };
+    }
     if (prefix && memo) {
       const title = memo.slice(prefix.length).trim();
-      return title || null;
+      return { title: title || null, agreementShareId: null };
     }
   }
 
-  const memoLog = transaction.meta?.logMessages?.find((line) =>
-    prefixes.some((prefix) => line.includes(prefix)),
-  );
-  if (!memoLog) return null;
-  const match = memoLog.match(/(?:allot|fatia):v1:([^"']+)/u);
-  return match?.[1]?.trim() || null;
+  return { title: null, agreementShareId: null };
 }
 
 export function parseReceiptTransaction(
   signature: string,
   transaction: ParsedReceiptTransaction,
 ): Receipt {
-  const title = getTitle(transaction);
+  const { title, agreementShareId } = getMemoDetails(transaction);
   const blockTime =
     transaction.blockTime === null ? null : Number(transaction.blockTime);
 
   if (!transaction.meta || transaction.meta.err !== null) {
     return {
       signature,
-      status: "failed",
+      status: transaction.meta === null ? "unknown" : "failed",
       payer: null,
       title,
+      agreementShareId,
       blockTime,
       total: 0n,
       transfers: [],
@@ -156,20 +164,71 @@ export function parseReceiptTransaction(
     status: "confirmed",
     payer,
     title,
+    agreementShareId,
     blockTime,
     total,
     transfers,
   };
 }
 
+// Compares the parsed USDC instructions, not just a memo or net balance change.
+// This does not establish who controlled a wallet or who accepted an agreement.
+export async function checkAgreementTransfers(
+  transaction: ParsedReceiptTransaction,
+  link: PaymentLink,
+): Promise<AgreementTransferCheck> {
+  if (!transaction.meta || transaction.meta.err !== null || !transaction.meta.innerInstructions) return "unverifiable";
+  const instructions = [
+    ...transaction.transaction.message.instructions,
+    ...transaction.meta.innerInstructions.flatMap((entry) => entry.instructions),
+  ];
+  const transfers: { source: string; authority: string; destination: string; amount: bigint }[] = [];
+  for (const instruction of instructions) {
+    if (instruction.program !== "spl-token" && instruction.programId !== TOKEN_PROGRAM_ADDRESS) continue;
+    if (!instruction.parsed || typeof instruction.parsed !== "object" || !("type" in instruction.parsed)) return "unverifiable";
+    const parsed = instruction.parsed;
+    if (typeof parsed.type !== "string") return "unverifiable";
+    if (["initializeAccount", "initializeAccount2", "initializeAccount3", "getAccountDataSize", "initializeImmutableOwner"].includes(parsed.type)) continue;
+    if (parsed.type !== "transferChecked" || !("info" in parsed) || !parsed.info || typeof parsed.info !== "object") return "unverifiable";
+    const info = parsed.info;
+    if (!("mint" in info) || typeof info.mint !== "string") return "unverifiable";
+    if (info.mint !== USDC_MINT) continue;
+    if (!("tokenAmount" in info) || !info.tokenAmount || typeof info.tokenAmount !== "object" ||
+        !("amount" in info.tokenAmount) || typeof info.tokenAmount.amount !== "string" ||
+        !("decimals" in info.tokenAmount) || info.tokenAmount.decimals !== USDC_DECIMALS ||
+        !("destination" in info) || typeof info.destination !== "string" ||
+        !("source" in info) || typeof info.source !== "string" ||
+        !("authority" in info) || typeof info.authority !== "string" ||
+        !/^\d+$/.test(info.tokenAmount.amount)) return "unverifiable";
+    transfers.push({ source: info.source, authority: info.authority, destination: info.destination,
+      amount: BigInt(info.tokenAmount.amount) });
+  }
+  if (transfers.length !== link.recipients.length || new Set(transfers.map((item) => item.source)).size !== 1 ||
+      new Set(transfers.map((item) => item.authority)).size !== 1) return "mismatch";
+  const total = transfers.reduce((sum, item) => sum + item.amount, 0n);
+  let expectedAmounts: bigint[];
+  try {
+    if (link.amount !== null && parseUsdc(link.amount) !== total) return "mismatch";
+    expectedAmounts = splitAmount(total, link.recipients.map((recipient) => recipient.bps));
+  } catch { return "mismatch"; }
+  const expected = await Promise.all(link.recipients.map(async (recipient, index) => {
+    const [destination] = await findAssociatedTokenPda({ owner: address(recipient.address), mint: USDC_MINT,
+      tokenProgram: TOKEN_PROGRAM_ADDRESS });
+    return `${destination}:${expectedAmounts[index]}`;
+  }));
+  const actual = transfers.map((item) => `${item.destination}:${item.amount}`);
+  expected.sort(); actual.sort();
+  return expected.every((value, index) => value === actual[index]) ? "match" : "mismatch";
+}
+
 function delay(milliseconds: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 }
 
-export async function readReceipt(
+export async function readReceiptDetails(
   client: AppClient,
   signatureValue: string,
-): Promise<Receipt> {
+): Promise<{ receipt: Receipt; transaction: ParsedReceiptTransaction }> {
   let validatedSignature;
   try {
     validatedSignature = parseSignature(signatureValue);
@@ -186,13 +245,15 @@ export async function readReceipt(
       })
       .send();
     if (transaction !== null) {
-      return parseReceiptTransaction(
-        signatureValue,
-        transaction as unknown as ParsedReceiptTransaction,
-      );
+      const parsed = transaction as unknown as ParsedReceiptTransaction;
+      return { receipt: parseReceiptTransaction(signatureValue, parsed), transaction: parsed };
     }
     if (attempt < 2) await delay((attempt + 1) * 100);
   }
 
   throw new ReceiptNotFoundError();
+}
+
+export async function readReceipt(client: AppClient, signatureValue: string): Promise<Receipt> {
+  return (await readReceiptDetails(client, signatureValue)).receipt;
 }

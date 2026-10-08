@@ -6,6 +6,8 @@ Updated: 2026-10-07. Initial audience: small freelance production teams, especia
 
 Allot gives freelance teams one payment link that unlocks only after every recipient accepts the same split.
 
+Long-term thesis: a financial coordination layer for work shared by people and software agents. Agents would propose within a defined budget; people would approve and sign payments. That agent workflow is not live yet.
+
 ## Thirty-second pitch
 
 Freelance teams finish the work together, but getting paid often leaves one person collecting the client payment and forwarding everybody else's share.
@@ -60,8 +62,8 @@ We want to test the next project with a team that currently collects the client'
 
 ## Pilot proof
 
-Interview five freelance production teams that worked on a shared client project recently. Ask how they agreed on the division, who collected the payment, what needed follow-up, and whether they would complete account onboarding.
+Interview 20 freelance production teams that worked on a shared client project recently. Ask how they agreed on the division, who collected the payment, what needed follow-up, and whether they would complete account onboarding.
 
 Then observe one project agreement end to end. Measure time to unanimous acceptance, revisions, abandoned proposals, receipt reconciliation, and payment follow-ups. A pilot target is not a current metric.
 
-Keep monetization undecided until the pilot establishes willingness to pay and provider costs.
+The planned price is US$0.80 per completed transaction, without a subscription. The Devnet demo does not collect this fee. Test willingness to pay and compare the planned price with actual provider, support, refund, and compliance costs before enabling real-money billing.

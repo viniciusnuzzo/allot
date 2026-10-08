@@ -1,12 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from "@solana-program/token";
+import { address } from "@solana/kit";
 import { ReceiptView } from "../components/receipt-view";
 
 import { USDC_MINT } from "./config";
 import type { AppClient } from "./solana-client";
 import {
   parseReceiptTransaction,
+  checkAgreementTransfers,
   readReceipt,
   ReceiptNotFoundError,
   type ParsedReceiptTransaction,
@@ -89,12 +92,28 @@ describe("parseReceiptTransaction", () => {
     expect(parseReceiptTransaction(SIGNATURE, transaction).title).toBe("Café coletivo");
   });
 
+  it("shows an agreement reference as a claim, not proof of approval", () => {
+    const transaction: ParsedReceiptTransaction = {
+      ...successfulTransaction,
+      transaction: { message: { instructions: [{ program: "spl-memo", parsed: "allot:v2:11111111-1111-4111-8111-111111111111:Campaign" }] } },
+    };
+    const receipt = parseReceiptTransaction(SIGNATURE, transaction);
+    expect(receipt.agreementShareId).toBe("11111111-1111-4111-8111-111111111111");
+    const html = renderToStaticMarkup(createElement(ReceiptView, { receipt }));
+    expect(html).toContain("/pagar?s=11111111-1111-4111-8111-111111111111");
+    expect(html).toContain("does not prove the agreement was approved");
+    const compared = renderToStaticMarkup(createElement(ReceiptView, { receipt, agreementCheck: "match" }));
+    expect(compared).toContain("transfer instructions match this published split");
+    expect(compared).toContain("does not verify wallet ownership");
+  });
+
   it("reconstructs successful USDC deltas, including a newly created ATA", () => {
     expect(parseReceiptTransaction(SIGNATURE, successfulTransaction)).toEqual({
       signature: SIGNATURE,
       status: "confirmed",
       payer: PAYER,
       title: "Jantar de sábado",
+      agreementShareId: null,
       blockTime: 1_700_000_000,
       total: 6_000_000n,
       transfers: [
@@ -122,6 +141,19 @@ describe("parseReceiptTransaction", () => {
     });
   });
 
+  it("does not call missing transaction metadata a failure", () => {
+    const receipt = parseReceiptTransaction(SIGNATURE, {
+      ...successfulTransaction,
+      meta: null,
+    });
+
+    expect(receipt).toMatchObject({ status: "unknown", total: 0n, transfers: [] });
+    const html = renderToStaticMarkup(createElement(ReceiptView, { receipt }));
+    expect(html).toContain("Status unavailable");
+    expect(html).toContain("Token balance changes unavailable.");
+    expect(html).not.toContain("0.00 USDC");
+  });
+
   it("keeps title null when there is no Allot memo", () => {
     const noMemo: ParsedReceiptTransaction = {
       ...successfulTransaction,
@@ -142,6 +174,16 @@ describe("parseReceiptTransaction", () => {
     };
 
     expect(parseReceiptTransaction(SIGNATURE, otherMemo).title).toBeNull();
+  });
+
+  it("does not mistake an arbitrary program log for an Allot memo", () => {
+    const transaction: ParsedReceiptTransaction = {
+      ...successfulTransaction,
+      meta: { err: null, logMessages: ["Program log: allot:v1:Fake title"] },
+      transaction: { message: { instructions: [] } },
+    };
+
+    expect(parseReceiptTransaction(SIGNATURE, transaction).title).toBeNull();
   });
 
   it("preserves a missing block time", () => {
@@ -195,5 +237,28 @@ describe("readReceipt", () => {
 
     await expect(readReceipt(client, "invalid")).rejects.toThrow("invalid signature");
     expect(getTransaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("checkAgreementTransfers", () => {
+  const link = { v: 1 as const, title: "Campaign", amount: "6.00", recipients: [
+    { name: "A", address: RECIPIENT_A, bps: 5000 },
+    { name: "B", address: RECIPIENT_B, bps: 5000 },
+  ] };
+
+  it("compares exact token-account destinations and base-unit amounts", async () => {
+    const destinations = await Promise.all(link.recipients.map(async (recipient) =>
+      (await findAssociatedTokenPda({ owner: address(recipient.address), mint: USDC_MINT,
+        tokenProgram: TOKEN_PROGRAM_ADDRESS }))[0]));
+    const transaction: ParsedReceiptTransaction = { ...successfulTransaction,
+      meta: { ...successfulTransaction.meta!, innerInstructions: [] },
+      transaction: { message: { instructions: destinations.map((destination) => ({ program: "spl-token",
+        parsed: { type: "transferChecked", info: { authority: PAYER, source: "source-ata", destination,
+          mint: USDC_MINT, tokenAmount: { amount: "3000000", decimals: 6 } } } })) } },
+    };
+    expect(await checkAgreementTransfers(transaction, link)).toBe("match");
+    const altered = { ...link, recipients: [link.recipients[0], { ...link.recipients[1], bps: 4000 }] };
+    expect(await checkAgreementTransfers(transaction, altered)).toBe("mismatch");
+    expect(await checkAgreementTransfers({ ...transaction, meta: { ...transaction.meta!, innerInstructions: null } }, link)).toBe("unverifiable");
   });
 });

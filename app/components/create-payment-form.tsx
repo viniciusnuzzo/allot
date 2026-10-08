@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 
 import { paymentLinkSchema, type PaymentLink } from "../lib/payment-link";
-import type { Member, Split } from "../lib/teams";
+import type { AgentDraft, Member, Split } from "../lib/teams";
 import { AddressField } from "./address-field";
 import { PieSplit, PIE_COLORS } from "./pie-split";
 
@@ -14,6 +14,14 @@ type DraftRecipient = {
   bps: number;
   userId: string;
 };
+
+const TEMPLATES = [
+  { label: "Agency · lead / editor / designer", title: "Agency project", count: 3 },
+  { label: "Production · producer / editor / designer", title: "Production project", count: 3 },
+  { label: "Software · developer / designer", title: "Software project", count: 2 },
+  { label: "Creator · creator / editor", title: "Creator project", count: 2 },
+  { label: "Consulting · lead / two specialists", title: "Consulting project", count: 3 },
+] as const;
 
 function equalShares(count: number): number[] {
   const base = Math.floor(10_000 / count);
@@ -26,12 +34,13 @@ function newRecipient(id: number, bps: number, member?: Member): DraftRecipient 
   return { id, name: member?.name ?? "", address: "", bps, userId: member?.user_id ?? "" };
 }
 
-export function CreatePaymentForm({ members, initial, onSubmit }: { members: Member[]; initial?: Split; onSubmit: (payload: PaymentLink, ids: string[]) => Promise<void> }) {
+export function CreatePaymentForm({ members, initial, proposal, onSubmit }: { members: Member[]; initial?: Split; proposal?: AgentDraft; onSubmit: (payload: PaymentLink, ids: string[]) => Promise<void> }) {
   const nextId = useRef(6);
-  const [title, setTitle] = useState(initial?.payload.title ?? "");
-  const [amount, setAmount] = useState(initial?.payload.amount ?? "");
-  const [recipients, setRecipients] = useState<DraftRecipient[]>(initial
-    ? initial.payload.recipients.map((recipient, index) => ({ ...recipient, id: index + 1, userId: initial.recipient_ids[index] }))
+  const source = proposal ?? initial;
+  const [title, setTitle] = useState(source?.payload.title ?? "");
+  const [amount, setAmount] = useState(source?.payload.amount ?? "");
+  const [recipients, setRecipients] = useState<DraftRecipient[]>(source
+    ? source.payload.recipients.map((recipient, index) => ({ ...recipient, id: index + 1, userId: proposal?.recipientIds[index] ?? initial?.recipient_ids[index] ?? "" }))
     : [newRecipient(1, 5_000, members[0]), newRecipient(2, 5_000, members[1])]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -74,6 +83,13 @@ export function CreatePaymentForm({ members, initial, onSubmit }: { members: Mem
     ]);
   }
 
+  function applyTemplate(template: typeof TEMPLATES[number]) {
+    invalidate();
+    setTitle(template.title);
+    const shares = equalShares(template.count);
+    setRecipients(shares.map((bps, index) => newRecipient(index + 1, bps, members[index])));
+  }
+
   function removeRecipient(id: number) {
     if (recipients.length <= 2) return;
     invalidate();
@@ -113,6 +129,7 @@ export function CreatePaymentForm({ members, initial, onSubmit }: { members: Mem
   return (
     <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_21rem]">
       <form onSubmit={generateLink} className="surface-panel space-y-6">
+        {!initial && !proposal && <div className="space-y-2"><p className="text-sm font-semibold">Start from a team shape</p><div className="flex flex-wrap gap-2">{TEMPLATES.map((template) => <button key={template.label} type="button" className="button-secondary text-xs" disabled={members.length < template.count} onClick={() => applyTemplate(template)}>{template.label}</button>)}</div><p className="text-muted text-xs">Examples only. Shares start equal; edit every percentage and wallet address before submitting.</p></div>}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="field-label sm:col-span-2">
             Payment title
@@ -120,13 +137,17 @@ export function CreatePaymentForm({ members, initial, onSubmit }: { members: Mem
               required
               value={title}
               maxLength={60}
+              aria-describedby="payment-title-note"
               onChange={(event) => {
                 invalidate();
                 setTitle(event.target.value);
               }}
-              placeholder="e.g. Saturday dinner"
+              placeholder="e.g. Campaign video"
               className="field-input"
             />
+            <span id="payment-title-note" className="text-muted text-sm">
+              This title will appear in the public Solana transaction. Avoid private client details.
+            </span>
           </label>
           <label className="field-label">
             Amount in USDC <span className="text-muted">(optional)</span>
@@ -215,7 +236,7 @@ export function CreatePaymentForm({ members, initial, onSubmit }: { members: Mem
           className="button-primary w-full"
           disabled={busy || members.length < 2}
         >
-          {busy ? "Submitting…" : initial ? "Submit revised split" : "Send split for approval"}
+          {busy ? "Submitting…" : proposal ? "Submit agent draft for approval" : initial ? "Submit revised split" : "Send split for approval"}
         </button>
         <p className="text-sm text-muted">Every recipient must accept this version before a payment link can be generated. Any revision requires everyone to approve again.</p>
       </form>

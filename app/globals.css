@@ -497,6 +497,7 @@ a { text-decoration-thickness: 1.5px; text-underline-offset: 0.22em; }
   background: var(--lime-soft); color: var(--success); font-size: .75rem; font-weight: 750;
 }
 .status-chip[data-status="failed"] { background: #ffe3de; color: var(--danger); }
+.status-chip[data-status="unknown"] { background: #ecebea; color: var(--ink-soft); }
 code, .tabular { font-variant-numeric: tabular-nums; }
 
 @media (min-width: 800px) {

@@ -1,18 +1,41 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BrandLink } from "../../components/brand-mark";
 import { ReceiptView } from "../../components/receipt-view";
-import { readReceipt, ReceiptNotFoundError } from "../../lib/receipt";
+import { checkAgreementTransfers, readReceiptDetails, ReceiptNotFoundError, type AgreementTransferCheck } from "../../lib/receipt";
+import { paymentLinkSchema } from "../../lib/payment-link";
 import { client } from "../../lib/solana-client";
+import { supabaseServer } from "../../lib/supabase-server";
 
 type ReceiptPageProps = { params: Promise<{ signature: string }> };
+
+export const metadata: Metadata = {
+  title: "Transaction receipt | Allot",
+  robots: { index: false, follow: false },
+};
 
 export default async function ReceiptPage({ params }: ReceiptPageProps) {
   const { signature } = await params;
   let receipt = null;
+  let agreementCheck: AgreementTransferCheck | "unavailable" | null = null;
   let error: "invalid" | "not-found" | "network" | null = null;
   try {
-    receipt = await readReceipt(client, signature);
+    const details = await readReceiptDetails(client, signature);
+    receipt = details.receipt;
+    if (receipt.agreementShareId && receipt.status === "confirmed") {
+      try {
+        const db = await supabaseServer();
+        const { data, error: agreementError } = await db.rpc("allot_payment", { share: receipt.agreementShareId });
+        if (agreementError) agreementCheck = "unavailable";
+        else if (data === null) agreementCheck = "mismatch";
+        else {
+          const link = paymentLinkSchema.safeParse(data);
+          agreementCheck = !link.success ? "unavailable" : link.data.title !== receipt.title
+            ? "mismatch" : await checkAgreementTransfers(details.transaction, link.data);
+        }
+      } catch { agreementCheck = "unavailable"; }
+    }
   } catch (caught) {
     if (caught instanceof ReceiptNotFoundError) error = "not-found";
     else if (caught instanceof Error && caught.message === "invalid signature") error = "invalid";
@@ -50,7 +73,7 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
           <h1 className="app-title">A public receipt, straight from the blockchain.</h1>
           <p className="app-intro">Transaction status and net USDC balance changes recorded on Devnet.</p>
         </header>
-        <ReceiptView receipt={receipt} />
+        <ReceiptView receipt={receipt} agreementCheck={agreementCheck} />
       </div>
     </main>
   );

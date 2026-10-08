@@ -18,7 +18,7 @@ describe("normalizePaymentError", () => {
       "insufficient SOL",
       Object.assign(new Error("insufficient lamports"), { code: "INSUFFICIENT_SOL" }),
       {
-        message: "Insufficient SOL balance to pay the fee.",
+        message: "Insufficient SOL for network fees and any missing recipient token accounts.",
         canRetry: true,
       },
     ],

@@ -7,10 +7,10 @@ Legenda: ✅ comprovado · 🟡 automatizado/parcial · ⬜ pendente com carteir
 
 ## Gate automático
 
-- ✅ `npm test`: 63 testes em 05/10/2026.
+- ✅ `npm test`: 81 testes em 07/10/2026, incluindo API de rascunhos do agente.
 - ✅ `npm run lint`.
 - ✅ `npm run build`.
-- ✅ 5 destinatários + 5 ATAs ausentes: 778 / 1.232 bytes.
+- ✅ 5 destinatários + 5 ATAs ausentes + título multibyte máximo: 964 / 4.096 bytes (transação v1).
 - ✅ Nenhuma rota `/debug` no build final.
 - ✅ Nenhum segredo ou arquivo `.env` rastreado; somente `.env.example`.
 
@@ -19,7 +19,7 @@ Legenda: ✅ comprovado · 🟡 automatizado/parcial · ⬜ pendente com carteir
 | # | Cenário | Estado | Evidência / próximo passo |
 |---|---|---|---|
 | 1 | 2 pessoas, 50/50 | ✅ | Testes de dinheiro e criação do link. |
-| 2 | 5 pessoas, percentuais fracionados e soma exata | ✅ | Conservação por `bigint`; tamanho 778 bytes no pior caso. |
+| 2 | 5 pessoas, percentuais fracionados e soma exata | ✅ | Conservação por `bigint`; transação v1 com 5 ATAs ausentes e título multibyte máximo: 964 bytes. |
 | 3 | Destinatário sem conta USDC | 🟡 | Instrução idempotente de criação da ATA testada; confirmar em Devnet real. |
 | 4 | Endereço duplicado | ✅ | Bloqueado pelo schema e pelo builder. |
 | 5 | Endereço inválido com mensagem em PT-BR | ✅ | Validado no formulário. |
@@ -38,6 +38,16 @@ Legenda: ✅ comprovado · 🟡 automatizado/parcial · ⬜ pendente com carteir
 - Leitura confirmou diferença de 0,001 USDC sem inventar título Allot.
 - Recibo falho e assinatura inexistente também renderizaram estados corretos.
 - O recibo funciona em 375 px sem overflow horizontal.
+
+## Preparação de 07/10/2026
+
+- Histórico de versões substituídas agora mostra decisões antigas como históricas.
+- `GET /api/agreements/:id` exige conta confirmada e RLS; pedido sem sessão retornou HTTP 401 localmente.
+- Checagem local de policy cobre orçamento, teto, destinatários, expiração e ID repetido. Ainda não está conectada à assinatura nem persiste gasto.
+- Roteiro de pitch e demo: [plano de submissão](../demo/2026-10-07-submission-plan.md).
+- Nenhum pagamento Allot Devnet foi assinado nesta rodada; prova real continua pendente.
+- Novos links aprovados incluem `share_id` no memo `allot:v2`; o recibo trata a referência como alegação e compara as instruções USDC com o link publicado somente quando há dados RPC suficientes. Pendente validar em uma transação Allot assinada.
+- A camada de leitura/propostas do agente compilou e as rotas negaram pedido sem credencial (401) e criação de token com origem externa (403). A migração `db/agent-drafts.sql` foi aplicada e suas tabelas/permissões foram verificadas no banco Allot; nenhum fluxo autenticado de agente foi comprovado contra Supabase.
 
 ## Verificação de 05/10/2026
 

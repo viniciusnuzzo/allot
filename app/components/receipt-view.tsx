@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { formatUsdc } from "../lib/money";
-import type { Receipt } from "../lib/receipt";
+import type { AgreementTransferCheck, Receipt } from "../lib/receipt";
 import { PieSplit, PIE_COLORS } from "./pie-split";
 
 function receiptPercentages(receipt: Receipt): number[] {
@@ -13,7 +13,7 @@ function receiptPercentages(receipt: Receipt): number[] {
   );
 }
 
-export function ReceiptView({ receipt }: { receipt: Receipt }) {
+export function ReceiptView({ receipt, agreementCheck = null }: { receipt: Receipt; agreementCheck?: AgreementTransferCheck | "unavailable" | null }) {
   const [copied, setCopied] = useState(false);
   const percentages = receiptPercentages(receipt);
 
@@ -33,7 +33,7 @@ export function ReceiptView({ receipt }: { receipt: Receipt }) {
           className="status-chip"
           data-status={receipt.status}
         >
-          {receipt.status === "confirmed" ? "Confirmed on Devnet" : "Transaction failed"}
+          {{ confirmed: "Confirmed on Devnet", failed: "Transaction failed", unknown: "Status unavailable" }[receipt.status]}
         </span>
         <h2 className="mt-5 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
           {receipt.title ?? "Transaction receipt"}
@@ -48,9 +48,21 @@ export function ReceiptView({ receipt }: { receipt: Receipt }) {
           )}
         </p>
 
+        {receipt.agreementShareId ? (
+          <p className="notice-neutral mt-4 text-sm">
+            Transaction memo claims to reference <a className="underline break-all" href={`/pagar?s=${receipt.agreementShareId}`}>this payment agreement</a>. Anyone can write a memo; this reference alone does not prove the agreement was approved or that these transfers match it.
+          </p>
+        ) : null}
+        {agreementCheck && <p className="notice-neutral mt-3 text-sm" role="status">{{
+          match: "The parsed test-USDC transfer instructions match this published split's recipient token accounts and amounts. This does not verify wallet ownership or prove who wrote the memo.",
+          mismatch: "The memo's agreement reference does not match the published split or these transfer instructions. Do not treat this as an Allot payment proof.",
+          unverifiable: "The transaction did not provide enough parsed instruction detail to compare with the published split.",
+          unavailable: "Could not check the published agreement right now; the memo remains an unverified claim.",
+        }[agreementCheck]}</p>}
+
         <div className="amount-block">
           <p className="text-sm font-semibold">Net USDC received</p>
-          <p className="mt-1 text-3xl font-semibold">{formatUsdc(receipt.total)} USDC</p>
+          <p className="mt-1 text-3xl font-semibold">{receipt.status === "unknown" ? "Unavailable" : `${formatUsdc(receipt.total)} USDC`}</p>
         </div>
 
         {receipt.payer ? (
@@ -65,7 +77,7 @@ export function ReceiptView({ receipt }: { receipt: Receipt }) {
         <div className="mt-8">
           <h2 className="text-xl font-semibold">Wallets with a net increase</h2>
           {receipt.transfers.length === 0 ? (
-            <p className="text-muted mt-3">No net USDC increases recorded.</p>
+            <p className="text-muted mt-3">{receipt.status === "unknown" ? "Token balance changes unavailable." : "No net USDC increases recorded."}</p>
           ) : (
             <div className="mt-4 grid gap-3">
               {receipt.transfers.map((transfer, index) => (

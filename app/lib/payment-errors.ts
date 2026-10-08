@@ -53,7 +53,7 @@ export function normalizePaymentError(error: unknown): PaymentFailure {
   }
   if (code === "INSUFFICIENT_SOL" || /insufficient.*(lamport|sol|fee)/iu.test(message)) {
     return {
-      message: "Insufficient SOL balance to pay the fee.",
+      message: "Insufficient SOL for network fees and any missing recipient token accounts.",
       canRetry: true,
     };
   }

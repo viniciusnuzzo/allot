@@ -58,10 +58,14 @@ npm run lint
 npm run build
 ```
 
-Cobertura atual: dinheiro com `bigint`, links versionados, validação, erros, montagem da transação atômica, recibos e limite de tamanho. O pior caso automatizado com 5 destinatários e 5 ATAs ausentes mede **778 bytes**, abaixo do limite de **1.232 bytes**.
+Cobertura atual: dinheiro com `bigint`, links versionados, validação, erros, montagem da transação atômica, recibos e limite de tamanho. O caso automatizado com 5 destinatários, 5 ATAs ausentes e título de 60 caracteres multibyte mede **964 bytes** no formato v1 usado pelo app, abaixo do limite de **4.096 bytes**.
 
 Checklist manual: [docs/qa/2026-10-04-demo-checklist.md](docs/qa/2026-10-04-demo-checklist.md).
 Roteiro da demo: [docs/demo/2026-10-04-demo-script.md](docs/demo/2026-10-04-demo-script.md)
+Plano da submissão e limites da demo de agentes: [docs/demo/2026-10-07-submission-plan.md](docs/demo/2026-10-07-submission-plan.md).
+
+Camada de propostas por agente (migrações aplicadas no banco Allot; fluxo autenticado ainda sem teste integrado): [docs/AGENT-LAYER.md](docs/AGENT-LAYER.md).
+Mapa completo dos itens dos dois textos estratégicos, com implementado, pendente e dependências: [docs/FEATURE-MATRIX.md](docs/FEATURE-MATRIX.md).
 
 ## Limites do MVP
 

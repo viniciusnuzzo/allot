@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "mcp": "node mcp/server.mts",
     "check:supabase": "node --env-file=.env.local scripts/check-supabase.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "2.3.1",
     "@solana-program/memo": "0.15.0",
     "@solana-program/token": "0.17.0",
     "@solana/kit": "8.4.0",

@@ -21,6 +21,7 @@ export type BuildSplitInstructionsInput = {
   mint: Address;
   recipients: readonly SplitRecipient[];
   title: string;
+  agreementShareId?: string;
 };
 
 export type SendSplitPaymentInput = Omit<BuildSplitInstructionsInput, "rpc">;
@@ -64,9 +65,13 @@ export async function buildSplitInstructions({
   mint,
   recipients,
   title,
+  agreementShareId,
 }: BuildSplitInstructionsInput): Promise<readonly Instruction[]> {
   validateRecipients(recipients);
   const memoTitle = sanitizeMemoTitle(title);
+  if (agreementShareId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(agreementShareId)) {
+    throw new Error("invalid agreement reference");
+  }
 
   const [[sourceAta], destinationAtas] = await Promise.all([
     findAssociatedTokenPda({
@@ -120,7 +125,9 @@ export async function buildSplitInstructions({
     );
   }
 
-  instructions.push(getAddMemoInstruction({ memo: `allot:v1:${memoTitle}` }));
+  instructions.push(getAddMemoInstruction({ memo: agreementShareId
+    ? `allot:v2:${agreementShareId.toLowerCase()}:${memoTitle}`
+    : `allot:v1:${memoTitle}` }));
   return instructions;
 }
 

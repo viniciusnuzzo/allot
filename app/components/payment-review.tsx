@@ -23,8 +23,7 @@ import { WalletButton } from "./wallet-button";
 type PaymentState =
   | "disconnected"
   | "ready"
-  | "awaiting-signature"
-  | "sending"
+  | "processing"
   | "confirmed"
   | "failed";
 
@@ -33,10 +32,9 @@ type ConnectedWallet = NonNullable<ReturnType<typeof useConnectedWallet>>;
 const STATUS: Record<PaymentState, string> = {
   disconnected: "Connect your wallet to continue.",
   ready: "Ready to pay.",
-  "awaiting-signature": "Review and approve in your wallet.",
-  sending: "Transaction sent. Confirming…",
+  processing: "Approve in your wallet, then wait for Devnet confirmation.",
   confirmed: "Payment confirmed.",
-  failed: "Payment was not completed.",
+  failed: "Review the payment message below.",
 };
 
 async function validateBalances(
@@ -96,10 +94,12 @@ function ConnectedPaymentAction({
   connected,
   link,
   total,
+  agreementShareId,
 }: {
   connected: ConnectedWallet;
   link: PaymentLink;
   total: bigint | null;
+  agreementShareId?: string;
 }) {
   const router = useRouter();
   const signer = useWalletAccountTransactionSendingSigner(
@@ -112,7 +112,7 @@ function ConnectedPaymentAction({
   async function pay() {
     if (state !== "ready" || total === null) return;
     setFailure(null);
-    setState("awaiting-signature");
+    setState("processing");
 
     try {
       const recipientAddresses = link.recipients.map((recipient) =>
@@ -127,13 +127,13 @@ function ConnectedPaymentAction({
         payer: signer,
         mint: USDC_MINT,
         title: link.title,
+        agreementShareId,
         recipients: recipientAddresses.map((recipientAddress, index) => ({
           address: recipientAddress,
           amount: amounts[index],
         })),
       });
 
-      setState("sending");
       setState("confirmed");
       router.push(`/r/${signature}`);
     } catch (error) {
@@ -157,11 +157,7 @@ function ConnectedPaymentAction({
         disabled={state !== "ready" || total === null}
         className="button-primary mt-4 w-full"
       >
-        {state === "awaiting-signature"
-          ? "Waiting for signature…"
-          : state === "sending"
-            ? "Confirming…"
-            : "Pay once"}
+        {state === "processing" ? "Processing payment…" : "Pay once"}
       </button>
 
       {failure ? (
@@ -190,7 +186,7 @@ function ConnectedPaymentAction({
   );
 }
 
-export function PaymentReview({ link }: { link: PaymentLink }) {
+export function PaymentReview({ link, agreementShareId }: { link: PaymentLink; agreementShareId?: string }) {
   const connected = useConnectedWallet(client);
   const [amountInput, setAmountInput] = useState(link.amount ?? "");
 
@@ -260,10 +256,13 @@ export function PaymentReview({ link }: { link: PaymentLink }) {
 
         <div className="mt-6 grid gap-3 text-sm">
           <p className="notice-devnet">
-            Devnet: use only test USDC and test SOL. No real money.
+            Devnet: use only test USDC and test SOL. No real money. The payer covers network fees and may fund missing recipient USDC token accounts in test SOL.
           </p>
           <p className="notice-neutral">
-            The transaction is public and cannot be undone. Check every address before signing.
+            The title, addresses, and transfers will be public on Solana. The transaction cannot be undone. Check every address before signing.
+          </p>
+          <p className="notice-neutral">
+            This link can be paid more than once. If you already paid, check your receipt or wallet history before signing again.
           </p>
         </div>
 
@@ -271,7 +270,7 @@ export function PaymentReview({ link }: { link: PaymentLink }) {
           <WalletButton />
         </div>
         {connected ? (
-          <ConnectedPaymentAction connected={connected} link={link} total={total} />
+          <ConnectedPaymentAction connected={connected} link={link} total={total} agreementShareId={agreementShareId} />
         ) : (
           <p className="text-muted mt-6 border-t border-black/20 pt-6 text-sm">
             {STATUS.disconnected}

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BrandLink } from "../components/brand-mark";
@@ -6,6 +7,11 @@ import { decodePaymentLink, paymentLinkSchema, type PaymentLink } from "../lib/p
 import { supabaseServer } from "../lib/supabase-server";
 
 type PaymentPageProps = { searchParams: Promise<{ d?: string | string[]; s?: string | string[] }> };
+
+export const metadata: Metadata = {
+  title: "Review payment | Allot",
+  robots: { index: false, follow: false },
+};
 
 export default async function PaymentPage({ searchParams }: PaymentPageProps) {
   const params = await searchParams;
@@ -44,7 +50,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
           <p className="app-intro">One signature sends the full amount to all addresses below.</p>
           <p className="notice-neutral mt-4">{params.s ? "Every listed recipient accepted this saved split. Account approval does not verify wallet ownership." : "Legacy link: creator identity and recipient approvals are not verified. Review every detail."}</p>
         </header>
-        <PaymentReview link={link} />
+        <PaymentReview link={link} agreementShareId={typeof params.s === "string" ? params.s : undefined} />
       </div>
     </main>
   );
