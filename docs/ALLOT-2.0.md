@@ -24,3 +24,9 @@ Provar um ciclo completo: agente propõe ou altera um acordo para três destinat
 3. Corrigir bloqueios encontrados, com teste de regressão para lógica alterada.
 4. Testar o fluxo com três equipes e entrevistar 30 pessoas; registrar dados com consentimento.
 5. Gravar pitch e demo com evidência real, organizar GitHub e preparar a submissão.
+
+## Programas de apoio a acompanhar
+
+- [Colosseum Accelerator](https://colosseum.com/accelerator): o caminho é submeter o Allot a um hackathon Colosseum ou Eternal; vencedores podem ser convidados a entrevistar para o programa. Se selecionado, há duas semanas iniciais e Demo Day presenciais em São Francisco. Próxima ação: concluir a submissão do hackathon com demonstração e provas honestas; não tratar a aceleração como vaga garantida.
+- [Sebraetec Negócios Inovadores](https://meuatendimento.sebrae.com.br/sites/PortalSebrae/sebraetec/negociosinovadores): a trilha de validação atende empreendimentos iniciais, inclusive sem clientes, com consultoria e mentoria por prestadores, incubadoras e aceleradoras. Próxima ação: consultar o Sebrae do estado sobre elegibilidade, prestadores e subsídio local, que pode chegar a 90% do serviço.
+- [Google for Startups Accelerator Brasil](https://startup.google.com/intl/pt-BR/programs/accelerator/brazil/): guardar para uma etapa posterior; os critérios atuais pedem receita, equipe de pelo menos cinco pessoas além do fundador e estágio Seed a Série A. A janela publicada de 2026 encerrou em 1º de março.
