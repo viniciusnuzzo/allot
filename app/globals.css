@@ -20,13 +20,13 @@
 @theme inline {
   --color-background: var(--paper);
   --color-foreground: var(--ink);
-  --font-sans: Arial, Helvetica, sans-serif;
+  --font-sans: var(--font-allot), sans-serif;
   --font-mono: "SFMono-Regular", Consolas, monospace;
 }
 
 * { box-sizing: border-box; }
 html { background: var(--paper); scroll-behavior: smooth; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-allot), sans-serif; }
 ::selection { background: var(--ink); color: var(--white); }
 a, button, input, select, summary { outline-offset: 3px; }
 :focus-visible { outline: 3px solid var(--ink); }
@@ -205,7 +205,7 @@ button:disabled { cursor: not-allowed; }
 .data-row { min-width: 0; border-top: 1px solid var(--line); padding-block: 1rem; }
 .amount-block { margin-top: 1.5rem; border: 1px solid var(--ink); background: var(--white); padding: 1.25rem; }
 .notice-devnet, .notice-neutral, .notice-error, .notice-success { border: 1px solid var(--line); padding: 1rem; font-size: .9rem; line-height: 1.55; }
-.notice-devnet { border-left: 4px solid var(--ink); background: #e7e7e4; }
+.notice-devnet { background: #e7e7e4; }
 .notice-neutral { background: #e9e9e6; }
 .notice-error { border-color: #d6a29d; background: #fff1ef; color: var(--danger); }
 .notice-success { border-color: #9cb9a6; background: #edf6ef; color: var(--success); }

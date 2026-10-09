@@ -12,7 +12,7 @@ An agreement should read like a clear, signed document, and a payment should rea
 - **Paper:** `#fff` for the main canvas; `#f3f3f1` for alternate sections and the application shell.
 - **Secondary text:** `#4d4d4d`; **hairline:** `#cececb`; **strong line:** `#8d8d8a`.
 - **Status only:** deep green for confirmed, deep red for errors; neutral gray for pending and Devnet notices. Color never implies a payment is confirmed without receipt proof.
-- **Type:** Arial / Helvetica sans-serif. Headlines are heavy and compressed through weight and tracking; body copy stays open and readable. The supplied logo supplies the distinctive letterforms.
+- **Type:** Archivo. Its broad, sturdy forms sit beside the founder's angular wordmark without imitating it. Headlines are heavy and compressed through weight and tracking; body copy stays open and readable.
 - **Shape:** square or 2 px corners on controls. Rules separate steps, versions, recipients, and authority levels. No floating card stacks, ambient gradients, decorative orbits, pill menus, or generic crypto motifs.
 
 ## Components
