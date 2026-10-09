@@ -40,8 +40,8 @@ export function TeamDashboard({ teams }: { teams: Team[] }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   return <div className="space-y-8">
-    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your teams">
-      {teams.map((team) => <Link href={`/teams/${team.id}`} key={team.id} className="surface-panel block"><h2 className="text-2xl font-semibold break-words">{team.name}</h2><p className="text-muted mt-2">Open team →</p></Link>)}
+    <section className="team-index" aria-label="Your teams">
+      {teams.map((team) => <Link href={`/teams/${team.id}`} key={team.id} className="team-index-row"><h2 className="break-words">{team.name}</h2><span>Open workspace</span></Link>)}
       {!teams.length && <p className="notice-neutral">No teams yet. Create one or enter an invitation code.</p>}
     </section>
     <div className="grid gap-6 lg:grid-cols-2">

@@ -14,12 +14,11 @@ export function AgreementPreview() {
       <div className="agreement-stage-controls" aria-label="Explore the agreement example">
         {stages.map((label, index) => <button key={label} type="button" aria-pressed={stage === index} onClick={() => setStage(index)}>{label}</button>)}
       </div>
-      <div className="agreement-visual" aria-hidden="true">
-        <div className="agreement-disc" style={{ background: `conic-gradient(var(--coral) 0 ${shares[0]}%, var(--blue) ${shares[0]}% ${shares[0] + shares[1]}%, var(--violet) ${shares[0] + shares[1]}% 100%)` }}>
-          <span>100<small>%</small></span>
-        </div>
+      <div className="agreement-visual">
+        <div><span className="agreement-total">100<small>%</small></span><span className="agreement-total-label">allocated to three people</span></div>
         <p><strong>{stage === 2 ? "All agreed." : stage === 1 ? "One change requested." : "One decision pending."}</strong><span>One agreement. Three shares.</span></p>
       </div>
+      <div className="agreement-allocation-bar" aria-hidden="true">{shares.map((share, index) => <span key={index} style={{ width: `${share}%` }} />)}</div>
       <table>
         <caption className="sr-only">Example shares and approvals. No payment is created.</caption>
         <thead><tr><th scope="col">Teammate</th><th scope="col">Share</th><th scope="col">Decision</th></tr></thead>

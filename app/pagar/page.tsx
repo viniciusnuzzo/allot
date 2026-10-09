@@ -28,13 +28,16 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
 
   if (link === null) {
     return (
-      <main className="app-shell flex items-center">
-        <section className="site-width max-w-2xl">
+      <main className="app-shell">
+        <div className="site-width">
+          <nav className="floating-nav" aria-label="Navigation"><BrandLink /><Link href="/" className="back-link">Back to home</Link></nav>
+          <section className="max-w-2xl app-header">
           <p className="text-danger font-bold">Invalid link</p>
           <h1 className="app-title mt-3">This link is incomplete or damaged.</h1>
           <p className="app-intro">Ask the person who created the payment to generate and share a new link.</p>
           <Link href="/" className="button-primary mt-8">Back to Allot</Link>
-        </section>
+          </section>
+        </div>
       </main>
     );
   }

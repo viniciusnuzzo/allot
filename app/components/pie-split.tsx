@@ -1,4 +1,4 @@
-const COLORS = ["#20211f", "#ff7058", "#579af0", "#ffd84a", "#c8a8ff"];
+const COLORS = ["#101010", "#4d4d4d", "#777777", "#a7a7a7", "#cecece"];
 
 type PieSplitProps = {
   bps: readonly number[];
@@ -22,7 +22,7 @@ export function PieSplit({ bps, labels, className = "h-44 w-44" }: PieSplitProps
       aria-label={`Payment split. ${description}`}
       className={className}
     >
-      <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#fffef8" strokeWidth="8" />
+      <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#ffffff" strokeWidth="8" />
       {percentages.map((percentage, index) => {
         const dashOffset = -offsets[index];
         return (

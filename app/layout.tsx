@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
-
-const allotSans = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-allot",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Allot — agree the split, get paid together",
@@ -16,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${allotSans.variable} h-full antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" className="h-full antialiased">
       <body className="min-h-full">
         <Providers>{children}</Providers>
       </body>
