@@ -107,6 +107,16 @@ describe("parseReceiptTransaction", () => {
     expect(compared).toContain("does not verify wallet ownership");
   });
 
+  it("reads the agreement and agent request from a v3 memo", () => {
+    const transaction: ParsedReceiptTransaction = {
+      ...successfulTransaction,
+      transaction: { message: { instructions: [{ program: "spl-memo", parsed: "allot:v3:11111111-1111-4111-8111-111111111111:22222222-2222-4222-8222-222222222222:Campaign" }] } },
+    };
+    const receipt = parseReceiptTransaction(SIGNATURE, transaction);
+    expect(receipt).toMatchObject({ agreementShareId: "11111111-1111-4111-8111-111111111111",
+      requestId: "22222222-2222-4222-8222-222222222222", title: "Campaign" });
+  });
+
   it("reconstructs successful USDC deltas, including a newly created ATA", () => {
     expect(parseReceiptTransaction(SIGNATURE, successfulTransaction)).toEqual({
       signature: SIGNATURE,
@@ -114,6 +124,7 @@ describe("parseReceiptTransaction", () => {
       payer: PAYER,
       title: "Jantar de sábado",
       agreementShareId: null,
+      requestId: null,
       blockTime: 1_700_000_000,
       total: 6_000_000n,
       transfers: [

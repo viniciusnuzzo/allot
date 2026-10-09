@@ -22,6 +22,7 @@ export type BuildSplitInstructionsInput = {
   recipients: readonly SplitRecipient[];
   title: string;
   agreementShareId?: string;
+  requestId?: string;
 };
 
 export type SendSplitPaymentInput = Omit<BuildSplitInstructionsInput, "rpc">;
@@ -66,11 +67,15 @@ export async function buildSplitInstructions({
   recipients,
   title,
   agreementShareId,
+  requestId,
 }: BuildSplitInstructionsInput): Promise<readonly Instruction[]> {
   validateRecipients(recipients);
   const memoTitle = sanitizeMemoTitle(title);
   if (agreementShareId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(agreementShareId)) {
     throw new Error("invalid agreement reference");
+  }
+  if (requestId && (!agreementShareId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId))) {
+    throw new Error("invalid payment request reference");
   }
 
   const [[sourceAta], destinationAtas] = await Promise.all([
@@ -125,7 +130,9 @@ export async function buildSplitInstructions({
     );
   }
 
-  instructions.push(getAddMemoInstruction({ memo: agreementShareId
+  instructions.push(getAddMemoInstruction({ memo: requestId
+    ? `allot:v3:${agreementShareId!.toLowerCase()}:${requestId.toLowerCase()}:${memoTitle}`
+    : agreementShareId
     ? `allot:v2:${agreementShareId.toLowerCase()}:${memoTitle}`
     : `allot:v1:${memoTitle}` }));
   return instructions;

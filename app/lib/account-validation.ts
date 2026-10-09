@@ -27,6 +27,9 @@ export const teamInput = z.discriminatedUnion("action", [
   z.object({ action: z.literal("remove"), team, user_id: z.uuid() }),
   z.object({ action: z.literal("submit"), team, payload: paymentLinkSchema, recipient_ids: z.array(z.uuid()).min(2).max(5) })
     .refine((v) => v.recipient_ids.length === v.payload.recipients.length && new Set(v.recipient_ids).size === v.recipient_ids.length, "Choose distinct team members."),
+  z.object({ action: z.literal("submit_agent_draft"), team, draftId: z.uuid(), payload: paymentLinkSchema,
+    recipient_ids: z.array(z.uuid()).min(2).max(5) })
+    .refine((v) => v.recipient_ids.length === v.payload.recipients.length && new Set(v.recipient_ids).size === v.recipient_ids.length, "Choose distinct team members."),
   z.object({ action: z.literal("decide"), team, split: z.uuid(), decision: z.enum(["accepted", "rejected", "countered"]), requested_bps: z.number().int().min(1).max(10000).optional() })
     .refine((v) => v.decision !== "countered" || v.requested_bps !== undefined, "Enter the percentage you request."),
   z.object({ action: z.literal("publish"), team, split: z.uuid() }),

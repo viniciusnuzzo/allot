@@ -17,7 +17,7 @@ describe("public receipt API", () => {
   it("serializes exact base units without losing bigint precision", async () => {
     vi.mocked(readReceipt).mockResolvedValue({
       signature: "5".repeat(88), status: "confirmed", payer: null, title: null,
-      agreementShareId: null, blockTime: null, total: 9_007_199_254_740_993n,
+      agreementShareId: null, requestId: null, blockTime: null, total: 9_007_199_254_740_993n,
       transfers: [{ owner: "wallet", amount: 9_007_199_254_740_993n }],
     });
     const response = await GET(new Request("http://localhost/api/receipts/5"), context);

@@ -58,12 +58,12 @@ export function ProjectPlanning({ teamId, owner, projects, ready, drafts }: {
     <div><h2 id="project-title" className="text-2xl font-semibold">Projects &amp; budgets</h2><p className="text-muted mt-2 text-sm">Plan work in parent projects and subprojects. These test-USDC budgets are notes, not reserved funds or agent spending limits. Agreements and payments are not linked to them yet.</p></div>
     {!ready ? <p className="notice-neutral" role="status">Project planning is not installed in this database yet.</p> : <>{projects.length ? branch(null) : <p className="text-muted">No projects planned yet.</p>}
       {owner && drafts.length > 0 && <div className="space-y-3"><h3 className="font-semibold">Agent-suggested projects</h3>{drafts.map((draft) => <article className="data-row" key={draft.id}><strong>{draft.title}</strong><p className="text-muted mt-2 text-sm">{draft.budgetUnits === null ? "Budget not set" : `${formatUsdc(BigInt(draft.budgetUnits))} test USDC planned`} · {draft.parentId ? `Subproject of ${projects.find((project) => project.id === draft.parentId)?.title ?? "another project"}` : "Top-level project"}. No funds reserved.</p><div className="mt-3 flex flex-wrap gap-2"><button type="button" className="button-secondary text-sm" disabled={busy} onClick={() => void decide(draft.id, "accept")}>Create this project</button><button type="button" className="button-danger text-sm" disabled={busy} onClick={() => void decide(draft.id, "reject")}>Reject draft</button></div></article>)}</div>}
-      {owner && <form className="grid gap-3" onSubmit={(event) => void create(event)}>
+      {owner && <details className="project-create"><summary>{projects.length ? "Add another project" : "Add a project (optional)"}</summary><form className="grid gap-3 mt-4" onSubmit={(event) => void create(event)}>
         <label className="field-label">Project title<input className="field-input" name="title" required maxLength={60} /></label>
         <label className="field-label">Within project<select className="field-input" name="parent" defaultValue=""><option value="">Top level</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.title}</option>)}</select></label>
         <label className="field-label">Planned budget · test USDC (optional)<input className="field-input" name="budget" inputMode="decimal" placeholder="100.00" /></label>
         <button className="button-secondary justify-self-start" disabled={busy}>{busy ? "Creating…" : "Create project"}</button>
-      </form>}
+      </form></details>}
       {error && <p role="alert" className="notice-error">{error}</p>}
     </>}
   </section>;

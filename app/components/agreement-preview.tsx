@@ -10,11 +10,15 @@ export function AgreementPreview() {
   const people = ["Producer", "Editor", "Designer"];
   return (
     <figure className="agreement-preview" aria-label="Illustrative split negotiation">
-      <figcaption><span>Launch campaign</span><span>Example · {stage === 2 ? "Version 2" : "Version 1"}</span></figcaption>
+      <figcaption><span>Launch campaign</span><span>Example / {stage === 2 ? "Version 2" : "Version 1"}</span></figcaption>
       <div className="agreement-stage-controls" aria-label="Explore the agreement example">
         {stages.map((label, index) => <button key={label} type="button" aria-pressed={stage === index} onClick={() => setStage(index)}>{label}</button>)}
       </div>
-      <div className="agreement-bar" aria-hidden="true">{shares.map((share, index) => <span key={index} style={{ flex: share }} />)}</div>
+      <div className="agreement-visual">
+        <div><span className="agreement-total">100<small>%</small></span><span className="agreement-total-label">allocated to three people</span></div>
+        <p><strong>{stage === 2 ? "All agreed." : stage === 1 ? "One change requested." : "One decision pending."}</strong><span>One agreement. Three shares.</span></p>
+      </div>
+      <div className="agreement-allocation-bar" aria-hidden="true">{shares.map((share, index) => <span key={index} style={{ width: `${share}%` }} />)}</div>
       <table>
         <caption className="sr-only">Example shares and approvals. No payment is created.</caption>
         <thead><tr><th scope="col">Teammate</th><th scope="col">Share</th><th scope="col">Decision</th></tr></thead>

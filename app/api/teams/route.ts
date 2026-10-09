@@ -10,6 +10,13 @@ export async function POST(request: NextRequest) {
   const db = await supabaseServer();
   const { data: { user }, error: identityError } = await db.auth.getUser();
   if (identityError || !user?.email_confirmed_at) return NextResponse.json({ error: "Log in with a confirmed account." }, { status: 401 });
+  if (input.data.action === "submit_agent_draft") {
+    const { data, error } = await db.rpc("allot_agent_draft_submit", {
+      team: input.data.team, draft: input.data.draftId, payload: input.data.payload, recipient_ids: input.data.recipient_ids,
+    });
+    if (error) return NextResponse.json({ error: error.code === "P0001" ? error.message : "Could not submit agent draft. Refresh and try again." }, { status: 400 });
+    return NextResponse.json(data);
+  }
   const { action, ...details } = input.data;
   const { data, error } = await db.rpc("allot_action", {
     action,

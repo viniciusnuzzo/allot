@@ -64,8 +64,9 @@ Checklist manual: [docs/qa/2026-10-04-demo-checklist.md](docs/qa/2026-10-04-demo
 Roteiro da demo: [docs/demo/2026-10-04-demo-script.md](docs/demo/2026-10-04-demo-script.md)
 Plano da submissão e limites da demo de agentes: [docs/demo/2026-10-07-submission-plan.md](docs/demo/2026-10-07-submission-plan.md).
 
-Camada de propostas por agente (migrações aplicadas no banco Allot; fluxo autenticado ainda sem teste integrado): [docs/AGENT-LAYER.md](docs/AGENT-LAYER.md).
+Camada de agentes com propostas, policy persistente e pedidos de pagamento controlados (migrações aplicadas; fluxo real ainda sem prova de carteira): [docs/AGENT-LAYER.md](docs/AGENT-LAYER.md).
 Mapa completo dos itens dos dois textos estratégicos, com implementado, pendente e dependências: [docs/FEATURE-MATRIX.md](docs/FEATURE-MATRIX.md).
+Direção confirmada e primeiro incremento do Allot 2.0: [docs/ALLOT-2.0.md](docs/ALLOT-2.0.md).
 
 ## Limites do MVP
 

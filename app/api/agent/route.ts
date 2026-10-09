@@ -17,6 +17,9 @@ const inputSchema = z.discriminatedUnion("action", [
     .refine((value) => value.recipientIds.length === value.payload.recipients.length &&
       new Set(value.recipientIds).size === value.recipientIds.length, "Choose distinct team members."),
   z.object({ action: z.literal("request_approval"), team: z.uuid(), draftId: z.uuid() }),
+  z.object({ action: z.literal("request_payment"), team: z.uuid(), agreementId: z.uuid(),
+    idempotencyKey: z.string().min(1).max(64).regex(/^[A-Za-z0-9._:-]+$/) }),
+  z.object({ action: z.literal("get_payment_request"), team: z.uuid(), requestId: z.uuid() }),
   z.object({ action: z.literal("create_project"), team: z.uuid(), parent: z.uuid().nullable(),
     title: z.string().trim().min(1).max(60), budget: z.string().nullable() }),
 ]);
@@ -31,6 +34,17 @@ export async function POST(request: NextRequest) {
   if (!url || !key) return NextResponse.json({ error: "Agent API unavailable." }, { status: 503 });
   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const input = parsed.data;
+  if (input.action === "request_payment" || input.action === "get_payment_request") {
+    const { data, error } = await db.rpc(input.action === "request_payment"
+      ? "allot_agent_payment_request" : "allot_agent_payment_get", input.action === "request_payment"
+      ? { secret: match[1], team: input.team, split: input.agreementId, idempotency_key: input.idempotencyKey }
+      : { secret: match[1], team: input.team, request: input.requestId });
+    if (error || !data) return NextResponse.json({ error: "Payment request denied or unavailable." }, { status: 403 });
+    const value = data as Record<string, unknown>;
+    const paymentUrl = typeof value.shareId === "string"
+      ? new URL(`/pagar?s=${value.shareId}&request=${value.id}`, request.nextUrl.origin).toString() : null;
+    return NextResponse.json({ request: value, paymentUrl }, { headers: { "Cache-Control": "no-store" } });
+  }
   if (input.action === "create_project") {
     let budgetUnits: string | null;
     try { budgetUnits = input.budget === null ? null : parseUsdc(input.budget).toString(); }

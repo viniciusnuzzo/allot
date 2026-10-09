@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
 
-const allotSans = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-allot",
-  display: "swap",
-});
+const allotSans = Archivo({ subsets: ["latin"], variable: "--font-allot", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Allot — agree the split, get paid together",

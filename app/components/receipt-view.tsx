@@ -53,6 +53,7 @@ export function ReceiptView({ receipt, agreementCheck = null }: { receipt: Recei
             Transaction memo claims to reference <a className="underline break-all" href={`/pagar?s=${receipt.agreementShareId}`}>this payment agreement</a>. Anyone can write a memo; this reference alone does not prove the agreement was approved or that these transfers match it.
           </p>
         ) : null}
+        {receipt.requestId ? <p className="notice-neutral mt-3 text-sm">This signed transaction is bound to agent payment request <code>{receipt.requestId}</code>.</p> : null}
         {agreementCheck && <p className="notice-neutral mt-3 text-sm" role="status">{{
           match: "The parsed test-USDC transfer instructions match this published split's recipient token accounts and amounts. This does not verify wallet ownership or prove who wrote the memo.",
           mismatch: "The memo's agreement reference does not match the published split or these transfer instructions. Do not treat this as an Allot payment proof.",

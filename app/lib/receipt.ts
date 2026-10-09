@@ -45,6 +45,7 @@ export type Receipt = {
   payer: string | null;
   title: string | null;
   agreementShareId: string | null;
+  requestId: string | null;
   blockTime: number | null;
   total: bigint;
   transfers: readonly ReceiptTransfer[];
@@ -73,7 +74,7 @@ function parsedMemoValue(parsed: unknown): string | null {
   return null;
 }
 
-function getMemoDetails(transaction: ParsedReceiptTransaction): { title: string | null; agreementShareId: string | null } {
+function getMemoDetails(transaction: ParsedReceiptTransaction): { title: string | null; agreementShareId: string | null; requestId: string | null } {
   const prefixes = ["allot:v1:", "fatia:v1:"] as const;
   for (const instruction of transaction.transaction.message.instructions) {
     const isMemo =
@@ -84,24 +85,28 @@ function getMemoDetails(transaction: ParsedReceiptTransaction): { title: string 
 
     const memo = parsedMemoValue(instruction.parsed);
     const prefix = prefixes.find((value) => memo?.startsWith(value));
+    if (memo?.startsWith("allot:v3:")) {
+      const match = /^allot:v3:([0-9a-f-]{36}):([0-9a-f-]{36}):(.+)$/i.exec(memo);
+      if (match) return { title: match[3].trim() || null, agreementShareId: match[1].toLowerCase(), requestId: match[2].toLowerCase() };
+    }
     if (memo?.startsWith("allot:v2:")) {
       const match = /^allot:v2:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):(.+)$/i.exec(memo);
-      if (match) return { title: match[2].trim() || null, agreementShareId: match[1].toLowerCase() };
+      if (match) return { title: match[2].trim() || null, agreementShareId: match[1].toLowerCase(), requestId: null };
     }
     if (prefix && memo) {
       const title = memo.slice(prefix.length).trim();
-      return { title: title || null, agreementShareId: null };
+      return { title: title || null, agreementShareId: null, requestId: null };
     }
   }
 
-  return { title: null, agreementShareId: null };
+  return { title: null, agreementShareId: null, requestId: null };
 }
 
 export function parseReceiptTransaction(
   signature: string,
   transaction: ParsedReceiptTransaction,
 ): Receipt {
-  const { title, agreementShareId } = getMemoDetails(transaction);
+  const { title, agreementShareId, requestId } = getMemoDetails(transaction);
   const blockTime =
     transaction.blockTime === null ? null : Number(transaction.blockTime);
 
@@ -112,6 +117,7 @@ export function parseReceiptTransaction(
       payer: null,
       title,
       agreementShareId,
+      requestId,
       blockTime,
       total: 0n,
       transfers: [],
@@ -165,6 +171,7 @@ export function parseReceiptTransaction(
     payer,
     title,
     agreementShareId,
+    requestId,
     blockTime,
     total,
     transfers,

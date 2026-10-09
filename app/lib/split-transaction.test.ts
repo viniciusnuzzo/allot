@@ -197,6 +197,17 @@ describe("buildSplitInstructions", () => {
     expect(memo.data.memo).toBe("allot:v2:11111111-1111-4111-8111-111111111111:Campaign");
     expect(instructions.filter((instruction) => instruction.programAddress === TOKEN_PROGRAM_ADDRESS)).toHaveLength(2);
   });
+
+  it("binds an agent payment request to the signed transaction memo", async () => {
+    const { rpc } = mockRpc([{}, {}]);
+    const instructions = await buildSplitInstructions({
+      rpc, payer: createNoopSigner(PAYER), mint: USDC_MINT, recipients, title: "Campaign",
+      agreementShareId: "11111111-1111-4111-8111-111111111111",
+      requestId: "22222222-2222-4222-8222-222222222222",
+    });
+    const memo = parseMemoInstruction(instructions.at(-1) as Parameters<typeof parseMemoInstruction>[0]);
+    expect(memo.data.memo).toBe("allot:v3:11111111-1111-4111-8111-111111111111:22222222-2222-4222-8222-222222222222:Campaign");
+  });
 });
 
 describe("sendSplitPayment", () => {
