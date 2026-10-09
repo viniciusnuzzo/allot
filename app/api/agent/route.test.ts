@@ -67,4 +67,18 @@ describe("agent API boundary", () => {
       secret, team, parent: null, title: "Campaign", budget_units: "100000000",
     });
   });
+
+  it("creates idempotent policy-gated payment requests and returns a human signing URL", async () => {
+    rpc.mockResolvedValueOnce({ data: { id: agreementId, state: "ready_to_sign", shareId: team }, error: null })
+      .mockResolvedValueOnce({ data: { id: agreementId, state: "confirmed", signature: "5".repeat(88) }, error: null });
+    const created = await POST(request({ action: "request_payment", team, agreementId, idempotencyKey: "campaign-42" }));
+    expect(created.status).toBe(200);
+    expect(await created.json()).toMatchObject({ paymentUrl: `http://localhost/pagar?s=${team}&request=${agreementId}` });
+    expect(rpc).toHaveBeenCalledWith("allot_agent_payment_request", {
+      secret, team, split: agreementId, idempotency_key: "campaign-42",
+    });
+    const status = await POST(request({ action: "get_payment_request", team, requestId: agreementId }));
+    expect(status.status).toBe(200);
+    expect(rpc).toHaveBeenLastCalledWith("allot_agent_payment_get", { secret, team, request: agreementId });
+  });
 });

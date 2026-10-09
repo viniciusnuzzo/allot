@@ -6,15 +6,15 @@ Updated: 2026-10-07. Initial audience: small freelance production teams, especia
 
 Allot gives freelance teams one payment link that unlocks only after every recipient accepts the same split.
 
-Long-term thesis: a financial coordination layer for work shared by people and software agents. Agents would propose within a defined budget; people would approve and sign payments. That agent workflow is not live yet.
+Long-term thesis: a financial coordination layer for work shared by people and software agents. The deployed Devnet workflow lets agents propose and request approved payments within stored limits; people approve when required and always sign in their wallets. Real-account and funded-wallet proof is still pending.
 
 ## Thirty-second pitch
 
 Freelance teams finish the work together, but getting paid often leaves one person collecting the client payment and forwarding everybody else's share.
 
-Allot starts with the agreement. The owner proposes the split. Each recipient accepts, rejects, or asks for a different percentage. The link stays locked until everyone accepts the same version.
+Allot starts with the agreement. An agent can suggest the split or a change, but the owner submits it. Each recipient accepts, rejects, or asks for a different percentage. The link stays locked until everyone accepts the same version.
 
-Our current Solana Devnet demo sends the approved shares in one test-USDC transaction. Our next payment rail is Pix, so a Brazilian client can pay in reais.
+An agent can request payment only within a stored team policy. A person reviews when required and always signs in their wallet. The current rail uses test USDC on Solana Devnet; an Allot-signed transaction still needs end-to-end proof. Pix is planned for later.
 
 The outcome we are testing: teammates spend less time chasing each other for money.
 
@@ -62,7 +62,7 @@ We want to test the next project with a team that currently collects the client'
 
 ## Pilot proof
 
-Interview 20 freelance production teams that worked on a shared client project recently. Ask how they agreed on the division, who collected the payment, what needed follow-up, and whether they would complete account onboarding.
+Interview 30 potential users who worked on a shared client project recently. Ask how they agreed on the division, who collected the payment, what needed follow-up, and whether they would complete account onboarding. Invite three teams to test a real agreement workflow.
 
 Then observe one project agreement end to end. Measure time to unanimous acceptance, revisions, abandoned proposals, receipt reconciliation, and payment follow-ups. A pilot target is not a current metric.
 

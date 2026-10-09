@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireAccount } from "@/app/lib/supabase-server";
 import { TeamWorkspace } from "@/app/components/team-workspace";
-import type { Team, Member, Split, Decision, DecisionEvent, Project, AgentProjectDraft, AgentActivity } from "@/app/lib/teams";
+import type { Team, Member, Split, Decision, DecisionEvent, Project, AgentProjectDraft, AgentActivity, AgentPaymentPolicy, AgentPaymentRequest, AgentPaymentStats } from "@/app/lib/teams";
 import type { AgentDraft } from "@/app/lib/teams";
 import { paymentLinkSchema } from "@/app/lib/payment-link";
 
@@ -32,6 +32,7 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
   }) : [];
   const draftResult = team.owner_id === user.id ? await db.rpc("allot_agent_drafts", { team: id }) : { data: null, error: null };
   const activityResult = team.owner_id === user.id ? await db.rpc("allot_agent_activity", { team: id }) : { data: null, error: null };
+  const paymentStateResult = team.owner_id === user.id ? await db.rpc("allot_agent_payment_state", { team: id }) : { data: null, error: null };
   const agentDrafts: AgentDraft[] = Array.isArray(draftResult.data) ? draftResult.data.flatMap((item: unknown) => {
     if (!item || typeof item !== "object") return [];
     const value = item as Record<string, unknown>;
@@ -45,10 +46,20 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
   const agentActivity: AgentActivity[] = Array.isArray(activityResult.data) ? activityResult.data.flatMap((item: unknown) => {
     if (!item || typeof item !== "object") return [];
     const value = item as Record<string, unknown>;
-    const actions = ["credential_created", "credential_revoked", "agreement_read", "agreement_proposed", "approval_requested", "project_proposed"] as const;
+    const actions = ["credential_created", "credential_revoked", "agreement_read", "agreement_proposed", "approval_requested", "agreement_submitted", "project_proposed", "policy_updated", "payment_requested", "payment_approved", "payment_rejected", "payment_confirmed"] as const;
     if (typeof value.id !== "number" || !actions.includes(value.action as typeof actions[number]) || typeof value.createdAt !== "string") return [];
     return [{ id: value.id, action: value.action as AgentActivity["action"],
       targetId: typeof value.targetId === "string" ? value.targetId : null, createdAt: value.createdAt }];
   }) : [];
-  return <TeamWorkspace key={splits?.[0]?.id ?? id} team={team as Team} members={(members ?? []) as Member[]} splits={(splits ?? []) as Split[]} decisions={(decisions ?? []) as Decision[]} decisionEvents={(eventResult.data ?? []) as DecisionEvent[]} userId={user.id} agentDrafts={agentDrafts} agentActivity={agentActivity} agentReady={!draftResult.error && !activityResult.error} projects={(projectResult.data ?? []) as Project[]} projectsReady={!projectResult.error} projectDrafts={projectDrafts} />;
+  const paymentState = paymentStateResult.data && typeof paymentStateResult.data === "object" ? paymentStateResult.data as Record<string, unknown> : {};
+  const agentPaymentPolicy = paymentState.policy && typeof paymentState.policy === "object" ? paymentState.policy as AgentPaymentPolicy : null;
+  const agentPaymentRequests = Array.isArray(paymentState.requests) ? paymentState.requests as AgentPaymentRequest[] : [];
+  const agentPaymentStats: AgentPaymentStats | null = typeof paymentState.activeCredentials === "number" && Number.isSafeInteger(paymentState.activeCredentials) &&
+    typeof paymentState.committedUnits === "string" && /^\d+$/.test(paymentState.committedUnits) &&
+    typeof paymentState.confirmedUnits === "string" && /^\d+$/.test(paymentState.confirmedUnits) &&
+    typeof paymentState.pendingApprovals === "number" && Number.isSafeInteger(paymentState.pendingApprovals) ? {
+      activeCredentials: paymentState.activeCredentials, committedUnits: paymentState.committedUnits,
+      confirmedUnits: paymentState.confirmedUnits, pendingApprovals: paymentState.pendingApprovals,
+    } : null;
+  return <TeamWorkspace key={splits?.[0]?.id ?? id} team={team as Team} members={(members ?? []) as Member[]} splits={(splits ?? []) as Split[]} decisions={(decisions ?? []) as Decision[]} decisionEvents={(eventResult.data ?? []) as DecisionEvent[]} userId={user.id} agentDrafts={agentDrafts} agentActivity={agentActivity} agentReady={!draftResult.error && !activityResult.error && !paymentStateResult.error && !!agentPaymentStats} agentPaymentPolicy={agentPaymentPolicy} agentPaymentRequests={agentPaymentRequests} agentPaymentStats={agentPaymentStats} projects={(projectResult.data ?? []) as Project[]} projectsReady={!projectResult.error} projectDrafts={projectDrafts} />;
 }

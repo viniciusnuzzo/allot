@@ -95,11 +95,13 @@ function ConnectedPaymentAction({
   link,
   total,
   agreementShareId,
+  requestId,
 }: {
   connected: ConnectedWallet;
   link: PaymentLink;
   total: bigint | null;
   agreementShareId?: string;
+  requestId?: string;
 }) {
   const router = useRouter();
   const signer = useWalletAccountTransactionSendingSigner(
@@ -128,11 +130,17 @@ function ConnectedPaymentAction({
         mint: USDC_MINT,
         title: link.title,
         agreementShareId,
+        requestId,
         recipients: recipientAddresses.map((recipientAddress, index) => ({
           address: recipientAddress,
           amount: amounts[index],
         })),
       });
+
+      if (requestId) {
+        await fetch("/api/agent/payment", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "confirm", requestId, signature }) });
+      }
 
       setState("confirmed");
       router.push(`/r/${signature}`);
@@ -186,7 +194,7 @@ function ConnectedPaymentAction({
   );
 }
 
-export function PaymentReview({ link, agreementShareId }: { link: PaymentLink; agreementShareId?: string }) {
+export function PaymentReview({ link, agreementShareId, requestId }: { link: PaymentLink; agreementShareId?: string; requestId?: string }) {
   const connected = useConnectedWallet(client);
   const [amountInput, setAmountInput] = useState(link.amount ?? "");
 
@@ -270,7 +278,7 @@ export function PaymentReview({ link, agreementShareId }: { link: PaymentLink; a
           <WalletButton />
         </div>
         {connected ? (
-          <ConnectedPaymentAction connected={connected} link={link} total={total} agreementShareId={agreementShareId} />
+          <ConnectedPaymentAction connected={connected} link={link} total={total} agreementShareId={agreementShareId} requestId={requestId} />
         ) : (
           <p className="text-muted mt-6 border-t border-black/20 pt-6 text-sm">
             {STATUS.disconnected}

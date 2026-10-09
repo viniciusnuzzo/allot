@@ -171,7 +171,7 @@ A paleta combina um campo lima dominante com tinta carvão e acentos planos que 
 
 ### Agreement-led home, 2026-10-07
 
-The homepage leads with a freelance team's actual work: proposal, counterproposal, and agreement. A compact approval sheet replaces the decorative hero illustration. Its table exposes each role, percentage, and decision; a split bar carries the existing share colors. The example is explicitly illustrative and performs no account or payment operation.
+The homepage leads with a freelance team's actual work: proposal, counterproposal, and agreement. An interactive approval sheet exposes each role, percentage, and decision; a proportional split ring uses the existing share colors and updates with each example stage. The example is explicitly illustrative and performs no account or payment operation. On narrow screens, the headline and primary action precede the sheet; the Devnet limitations remain immediately after it.
 
 Keep one explanation of the workflow and one payment diagram. Avoid repeating the same payment preview in several oversized sections, invented traction counters, an endlessly moving slogan rail, all-caps labels, and ornamental CTA arrows. Keep the lime field, Space Grotesk, split mark, operational tokens, keyboard focus, and coffee animation.
 

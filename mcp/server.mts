@@ -76,6 +76,14 @@ function createServer() {
     description: "Ask the team owner to review an existing agent draft. Does not submit, approve, publish, or pay.",
     inputSchema: z.object({ team: z.uuid(), draftId: z.uuid() }),
   }, (args) => callAllot({ action: "request_approval", ...args }));
+  server.registerTool("request_payment", {
+    description: "Request payment for an approved fixed-amount agreement. Policy reserves budget. A person still approves when required and signs in a wallet.",
+    inputSchema: z.object({ team: z.uuid(), agreementId: z.uuid(), idempotencyKey: z.string().min(1).max(64).regex(/^[A-Za-z0-9._:-]+$/) }),
+  }, (args) => callAllot({ action: "request_payment", ...args }));
+  server.registerTool("get_payment_request", {
+    description: "Read the status of a payment request created with this agent credential.",
+    inputSchema: z.object({ team: z.uuid(), requestId: z.uuid() }),
+  }, (args) => callAllot({ action: "get_payment_request", ...args }));
   server.registerTool("get_payment_receipt", {
     description: "Read public Devnet transaction status and net test-USDC balance changes. Does not prove agreement approval.",
     inputSchema: z.object({ signature: z.string().min(64).max(88).regex(/^[1-9A-HJ-NP-Za-km-z]+$/) }),

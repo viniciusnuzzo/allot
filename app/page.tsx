@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandLink } from "./components/brand-mark";
+import { BrandLink, BrandSymbol } from "./components/brand-mark";
 import { BuyMeCoffee } from "./components/buy-me-coffee";
 import { AccountNavigation } from "./components/account-navigation";
 import { AgreementPreview } from "./components/agreement-preview";
@@ -20,19 +20,17 @@ export default function Home() {
       <section id="hero" className="hero-home">
         <div className="site-width hero-grid">
           <div className="hero-message">
-            <p className="audience-label">For human + AI collaboration</p>
             <h1 className="display-title"><span className="title-line"><span>Agree first.</span></span><span className="title-line"><span>Paid together.</span></span></h1>
-            <p className="hero-copy">Work moves between people, agents, agencies, and suppliers. Allot keeps one financial agreement versioned, approved, and tied to payment.</p>
-            <div className="mt-8 flex flex-wrap gap-3"><Link href="/criar" className="button-coral">Start an agreement</Link><a href="#como-funciona" className="button-secondary">See the workflow</a></div>
-            <p className="hero-footnote">Agents can propose. People keep approval and payment authority.</p>
-            <div className="trust-strip" aria-label="Demo limitations"><span>Solana Devnet</span><span>Test USDC</span><span>No real money</span></div>
+            <p className="hero-copy">One payment link for a whole team. Propose the split, get everyone on the same version, then let the client pay each share in one transaction.</p>
+            <div className="mt-8 flex flex-wrap gap-3"><Link href="/criar" className="button-coral">Start an agreement</Link><a href="#como-funciona" className="button-secondary">How it works</a></div>
           </div>
           <AgreementPreview />
         </div>
+        <div className="site-width hero-baseline"><div><span>For human + AI collaboration</span><p>Agents can propose and request within policy. People keep approval and wallet authority.</p></div><div className="trust-strip" aria-label="Demo limitations"><span>Solana Devnet</span><span>Test USDC</span><span>No real money</span></div></div>
       </section>
       <section id="como-funciona" className="workflow-section" aria-labelledby="workflow-title">
         <div className="site-width workflow-layout">
-          <div><p className="section-eyebrow">The agreement comes first</p><h2 id="workflow-title">One project.<br />Many contributors.</h2><p className="workflow-intro">A company runs a campaign with an agency, an AI operator, and specialist suppliers. Everyone sees the complete agreement before payment.</p></div>
+          <div><h2 id="workflow-title">One project.<br />Many contributors.</h2><p className="workflow-intro">A company runs a campaign with an agency, an AI operator, and specialist suppliers. Everyone sees the complete agreement before payment.</p></div>
           <ol className="workflow-list">
             <li><h3>The owner proposes</h3><p>Invite teammates by code or link. Set each recipient, wallet, percentage, and payment amount.</p></li>
             <li><h3>Each recipient decides</h3><p>Accept, reject, or request another percentage. Asking for 20% instead of 10% keeps the link locked.</p></li>
@@ -65,7 +63,7 @@ export default function Home() {
         </div>
       </section>
       <section id="sobre" className="positioning-section" aria-labelledby="positioning-title">
-        <div className="site-width"><p className="section-eyebrow">Why Allot</p><h2 id="positioning-title">Financial agreements for human + AI work.</h2><p className="positioning-copy">Payments are easy to trigger and hard to govern. Allot keeps proposals, revisions, permissions, approvals, and receipts in one flow. In the local agent prototype, software can suggest a draft; a person still submits it, recipients approve, and a payer signs in their own wallet.</p><p className="positioning-note">The agent integration is not live on this site. We still need validation with real companies, agencies, and agent platforms. Pix support, customer adoption, and commercial results remain unproven.</p></div>
+        <div className="site-width positioning-layout"><div><h2 id="positioning-title">Financial agreements for human + AI work.</h2><p className="positioning-copy">Payments are easy to trigger and hard to govern. Allot keeps proposals, revisions, permissions, approvals, and receipts in one flow. Agents can suggest drafts and request approved payments within a stored policy; recipients approve terms, and a person signs in their own wallet.</p><p className="positioning-note">The agent integration is an early Devnet workflow, not autonomous custody. We still need validation with real companies, agencies, and agent platforms. Pix support, customer adoption, and commercial results remain unproven.</p></div><div className="positioning-art" aria-hidden="true"><BrandSymbol className="positioning-symbol" /></div></div>
       </section>
       <section id="precos" className="pricing-section" aria-labelledby="pricing-title">
         <div className="site-width pricing-layout"><div><h2 id="pricing-title">No subscription.</h2><p>Allot does not require a monthly subscription. The planned price is US$0.80 per completed transaction, with no recurring fee.</p></div><div className="pricing-detail"><strong>Transparent pricing</strong><p>The current demo still uses test USDC on Solana Devnet. Network fees are separate and paid by the wallet.</p></div></div>
@@ -77,7 +75,7 @@ export default function Home() {
           <details><summary>Does Allot move real money?</summary><p>No. Allot uses Solana Devnet and test USDC. Pix and real-money payments are not available.</p></details>
           <details><summary>Do I need a subscription?</summary><p>No. Allot is planned without a monthly subscription: US$0.80 per completed transaction. The current Devnet demo does not charge this fee.</p></details>
           <details><summary>Do I need an account or a wallet?</summary><p>An account is required to create or join teams and decide on shares. Payment links and receipts are public. Paying the current demo requires a compatible Solana wallet.</p></details>
-          <details><summary>Can an AI agent spend my money?</summary><p>No. The local agent prototype can read an agreement and suggest a draft for the owner to review. It cannot approve for a person, publish a payment link, or sign a transaction. This integration is not live on the site yet.</p></details>
+          <details><summary>Can an AI agent spend my money?</summary><p>No. An agent can propose agreements and request an approved fixed payment within your stored limits. It cannot approve for a person or sign a transaction. A human keeps the wallet.</p></details>
           <details><summary>Is Allot an employment or payroll system?</summary><p>No. It is a financial-agreement and payment demo for collaborative work. Approval does not replace contracts, invoices, taxes, or employment rights.</p></details>
         </div></div>
       </section>

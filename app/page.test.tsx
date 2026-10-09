@@ -39,8 +39,8 @@ describe("Allot landing", () => {
     expect(html).toContain("No account, approval, or payment is created here.");
     expect(html).toContain("Pix is not available in Allot yet.");
     expect(html).toContain("For human + AI collaboration");
-    expect(html).toContain("Agents can propose. People keep approval and payment authority.");
-    expect(html).toContain("The agent integration is not live on this site.");
+    expect(html).toContain("Agents can propose and request within policy. People keep approval and wallet authority.");
+    expect(html).toContain("The agent integration is an early Devnet workflow, not autonomous custody.");
   });
 
   it("makes existing product features easy to find without claiming future capabilities", () => {
