@@ -4,9 +4,12 @@ import { BuyMeCoffee } from "./components/buy-me-coffee";
 import { AccountNavigation } from "./components/account-navigation";
 import { AgreementPreview } from "./components/agreement-preview";
 import { AtomicSplitArt } from "./components/payment-story-art";
+import { CrispWidget } from "./components/crisp-widget";
 
 export default function Home() {
   return (
+    <>
+      <CrispWidget />
     <main>
       <div className="home-nav-wrap site-width">
         <nav className="floating-nav" aria-label="Main navigation">
@@ -85,5 +88,6 @@ export default function Home() {
       <section className="support-section" aria-labelledby="support-title"><div className="site-width support-layout"><BuyMeCoffee href="#support-details" /><div id="support-details" className="support-details" tabIndex={-1}><h2 id="support-title">Good work grows through people.</h2><p>Share useful feedback, contribute an improvement, or test Allot with a collaborative team. This section does not accept payments.</p></div></div></section>
       <footer id="rodape" className="site-footer"><div className="site-width footer-layout"><div><BrandLink /><p>Agree the split. Get paid together.</p></div><nav aria-label="Footer navigation"><a href="#como-funciona">How it works</a><a href="#pix">Pix roadmap</a><a href="#faq">FAQ</a><Link href="/privacy">Privacy Policy</Link><Link href="/terms">Terms of Use</Link></nav><div className="footer-status"><span>In testing</span><p>Solana Devnet · Test USDC<br />No real money.</p></div></div></footer>
     </main>
+    </>
   );
 }

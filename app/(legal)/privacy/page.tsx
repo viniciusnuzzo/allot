@@ -31,6 +31,7 @@ export default function PrivacyPage() {
 
       <h2>Service providers and external services</h2>
       <p>Vercel hosts the website. Supabase provides authentication and database storage. Solana RPC services receive requests for balances, transactions, and receipts; the default endpoint is api.devnet.solana.com. Your wallet provider and any explorer you open handle information under their own policies. These services may process data outside your country.</p>
+      <p>The homepage includes Crisp live chat. Crisp may process technical session information, including browser and IP data, and uses necessary chat cookies. Messages and contact details you submit in the chat are sent to Crisp. See Crisp’s <a href="https://crisp.chat/en/privacy/" rel="noreferrer">Privacy Statement</a> and <a href="https://crisp.chat/en/cookies/" rel="noreferrer">Cookie Policy</a>.</p>
       <p>See <a href="https://vercel.com/legal/privacy-policy" rel="noreferrer">Vercel’s Privacy Notice</a> and <a href="https://supabase.com/privacy" rel="noreferrer">Supabase’s Privacy Policy</a> for their data practices. We have not added advertising trackers or analytics tools to this version.</p>
 
       <h2>Cookies and browser storage</h2>

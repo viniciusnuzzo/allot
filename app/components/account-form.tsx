@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export function AccountForm({ mode, next = "/teams" }: { mode: "login" | "signup" | "recovery" | "reset"; next?: string }) {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -18,7 +16,7 @@ export function AccountForm({ mode, next = "/teams" }: { mode: "login" | "signup
       const response = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...fields, action: mode, next }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
-      if (result.next) { router.push(result.next); router.refresh(); }
+      if (result.next) window.location.assign(result.next);
       else setMessage(result.message);
     } catch (problem) { setError(problem instanceof Error ? problem.message : "Could not connect. Try again."); }
     finally { setBusy(false); }
